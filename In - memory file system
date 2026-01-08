@@ -1,0 +1,69 @@
+class File: 
+  def __init__(self,name,content=""):
+    self.name =name
+    self.content=content
+
+class Directory:
+  def __init__(self,name):
+    self.name=name
+    self.files=[]
+    self.directories=[]
+
+class FileSystem:
+  def __init__(self):
+    self.root=Directory("/")
+
+  def get_parent(self,path):
+    parts=path.strip("/").split("/")
+    temp=self.root
+
+    for p in parts[:-1]:
+      for d in temp.directories:
+        if d.name==p:
+          temp=d
+          break
+    return temp,parts[-1]
+  def mkdir(self,path):
+    parent,name=self.get_parent(path)
+    parent.directories.append(Directory(name))
+
+  def touch(self,path):
+    parent,name=self.get_parent(path)
+    parent.files.append(File(name))
+
+  def ls(self,path):
+    if path=="/":
+      temp=self.root
+    else:
+      parent,name=self.get_parent(path)
+      temp=None
+      for d in parent.directories:
+        if d.name==name:
+          temp=d
+          break
+
+    result=[]
+    for d in temp.directories:
+      result.append(d.name)
+    for f in temp.files:
+      result.append(f.name)
+
+    return result
+
+  def rm(self,path):
+    parent,name=self.get_parent(path)
+    for f in parent.files:
+      if f.name==name:
+        parent.files.remove(f)
+        return 
+
+  for d in parent.directories:
+    if d.name==name:
+      parent.directories.remove(d)
+      return 
+
+  def cat(self,path):
+    parent,name=self.get_parent(path)
+    for f in parent.files:
+      if f.name ==name:
+        return f.content
